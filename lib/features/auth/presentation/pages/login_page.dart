@@ -43,8 +43,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
-
-      context.go(AppRoutes.dashboard);
     }
   }
 

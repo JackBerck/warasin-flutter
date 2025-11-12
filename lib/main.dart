@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:warasin/core/config/app_config.dart';
-import 'package:warasin/services/local_database_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'core/config/app_config.dart';
+import 'services/local_database_service.dart';
+import 'features/onboarding/providers/onboarding_provider.dart';
 import 'app.dart';
 
 void main() async {
@@ -19,8 +21,19 @@ void main() async {
   // Initialize Local Database
   await LocalDatabaseService.instance.init();
 
+  // Initialize SharedPreferences
+  final sharedPreferences = await SharedPreferences.getInstance();
+
   // Initialize Notifications
   // await NotificationService.instance.init();
 
-  runApp(const ProviderScope(child: WarasInApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        // Override SharedPreferences provider dengan instance yang sudah diinit
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+      ],
+      child: const WarasInApp(),
+    ),
+  );
 }

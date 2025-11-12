@@ -6,6 +6,7 @@ import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
+import '../../features/dashboard/presentation/pages/home_page.dart';
 import '../../features/medicine/presentation/pages/medicine_list_page.dart';
 import '../../features/medicine/presentation/pages/add_medicine_page.dart';
 import '../../features/schedule/presentation/pages/schedule_list_page.dart';
@@ -13,8 +14,7 @@ import '../../features/health_record/presentation/pages/health_record_page.dart'
 import '../../features/health_record/presentation/pages/add_health_record_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/auth/providers/auth_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../features/dashboard/presentation/pages/home_page.dart';
+import '../../features/onboarding/providers/onboarding_provider.dart';
 
 // Route names constants
 class AppRoutes {
@@ -33,47 +33,59 @@ class AppRoutes {
 
 // GoRouter Provider
 final routerProvider = Provider<GoRouter>((ref) {
+  // Watch auth state untuk reactive navigation
   final authState = ref.watch(authStateProvider);
+
+  // Watch onboarding state
+  final hasSeenOnboarding = ref.watch(hasSeenOnboardingProvider);
+  final isOfflineMode = ref.watch(isOfflineModeProvider);
 
   return GoRouter(
     initialLocation: AppRoutes.onboarding,
     debugLogDiagnostics: true,
 
-    // Redirect logic untuk authentication
-    redirect: (BuildContext context, GoRouterState state) async {
-      final isOnboarding = state.matchedLocation == AppRoutes.onboarding;
-      final isAuth =
-          state.matchedLocation == AppRoutes.login ||
-          state.matchedLocation == AppRoutes.register;
+    // Redirect logic - HARUS SYNCHRONOUS
+    redirect: (BuildContext context, GoRouterState state) {
+      final location = state.matchedLocation;
 
-      // Cek apakah user sudah pernah onboarding
-      final prefs = await SharedPreferences.getInstance();
-      final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
-      final isOfflineMode = prefs.getBool('is_offline_mode') ?? false;
-
-      // Cek apakah user sudah login (untuk mode online)
+      // Get current auth status (sync)
       final isLoggedIn = authState.asData?.value != null;
 
-      // Jika belum pernah onboarding, paksa ke onboarding
+      // Define route types
+      final isOnboarding = location == AppRoutes.onboarding;
+      final isAuthRoute =
+          location == AppRoutes.login || location == AppRoutes.register;
+
+      // 1. Jika belum pernah onboarding, paksa ke onboarding
       if (!hasSeenOnboarding && !isOnboarding) {
         return AppRoutes.onboarding;
       }
 
-      // Jika sudah onboarding tapi mode offline, langsung ke dashboard
-      if (hasSeenOnboarding && isOfflineMode && !isLoggedIn && !isAuth) {
-        return AppRoutes.dashboard;
-      }
-
-      // Jika sudah onboarding mode online tapi belum login, ke login
-      if (hasSeenOnboarding && !isOfflineMode && !isLoggedIn && !isAuth) {
+      // 2. Jika sudah onboarding tapi masih di onboarding page
+      if (hasSeenOnboarding && isOnboarding) {
+        // Jika sudah login, ke dashboard
+        if (isLoggedIn) {
+          return AppRoutes.dashboard;
+        }
+        // Jika offline mode, ke dashboard (tanpa login)
+        if (isOfflineMode) {
+          return AppRoutes.dashboard;
+        }
+        // Jika online mode tapi belum login, ke login
         return AppRoutes.login;
       }
 
-      // Jika sudah login tapi masih di auth pages, redirect ke dashboard
-      if (isLoggedIn && isAuth) {
+      // 3. Jika mode online tapi belum login, dan bukan di auth route
+      if (!isOfflineMode && !isLoggedIn && !isAuthRoute && hasSeenOnboarding) {
+        return AppRoutes.login;
+      }
+
+      // 4. Jika sudah login tapi masih di auth route, ke dashboard
+      if (isLoggedIn && isAuthRoute) {
         return AppRoutes.dashboard;
       }
 
+      // No redirect needed
       return null;
     },
 
@@ -90,18 +102,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.login,
         name: 'login',
         builder: (context, state) => const LoginPage(),
-        // builder: (context, state) => const Scaffold(
-        //   body: Center(child: Text('Login Page - Coming Soon')),
-        // ),
       ),
 
       GoRoute(
         path: AppRoutes.register,
         name: 'register',
         builder: (context, state) => const RegisterPage(),
-        // builder: (context, state) => const Scaffold(
-        //   body: Center(child: Text('Register Page - Coming Soon')),
-        // ),
       ),
 
       // Main App Routes with Bottom Navigation
@@ -118,11 +124,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                 name: 'home',
                 pageBuilder: (context, state) =>
                     const NoTransitionPage(child: HomePage()),
-                // pageBuilder: (context, state) => const NoTransitionPage(
-                //   child: Scaffold(
-                //     body: Center(child: Text('Home Page - Coming Soon')),
-                //   ),
-                // ),
               ),
             ],
           ),
@@ -207,6 +208,3 @@ final routerProvider = Provider<GoRouter>((ref) {
         Scaffold(body: Center(child: Text('Error: ${state.error}'))),
   );
 });
-
-// Provider untuk tracking onboarding status
-final hasSeenOnboardingProvider = StateProvider<bool>((ref) => false);

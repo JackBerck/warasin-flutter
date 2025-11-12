@@ -50,9 +50,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
-
-      // Navigate to login
-      context.go(AppRoutes.login);
     }
   }
 
