@@ -18,7 +18,7 @@ void main() async {
   await LocalDatabaseService.instance.init();
   
   // Initialize Notifications
-  await NotificationService.instance.init();
+  // await NotificationService.instance.init();
   
   runApp(
     const ProviderScope(
