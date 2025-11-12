@@ -14,6 +14,7 @@ import '../../features/health_record/presentation/pages/add_health_record_page.d
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../features/dashboard/presentation/pages/home_page.dart';
 
 // Route names constants
 class AppRoutes {
@@ -88,19 +89,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.login,
         name: 'login',
-        // builder: (context, state) => const LoginPage(),
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Login Page - Coming Soon')),
-        ),
+        builder: (context, state) => const LoginPage(),
+        // builder: (context, state) => const Scaffold(
+        //   body: Center(child: Text('Login Page - Coming Soon')),
+        // ),
       ),
 
       GoRoute(
         path: AppRoutes.register,
         name: 'register',
-        // builder: (context, state) => const RegisterPage(),
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Register Page - Coming Soon')),
-        ),
+        builder: (context, state) => const RegisterPage(),
+        // builder: (context, state) => const Scaffold(
+        //   body: Center(child: Text('Register Page - Coming Soon')),
+        // ),
       ),
 
       // Main App Routes with Bottom Navigation
@@ -115,13 +116,13 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.dashboard,
                 name: 'home',
-                // pageBuilder: (context, state) =>
-                //     const NoTransitionPage(child: HomePage()),
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: Scaffold(
-                    body: Center(child: Text('Home Page - Coming Soon')),
-                  ),
-                ),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: HomePage()),
+                // pageBuilder: (context, state) => const NoTransitionPage(
+                //   child: Scaffold(
+                //     body: Center(child: Text('Home Page - Coming Soon')),
+                //   ),
+                // ),
               ),
             ],
           ),

@@ -57,6 +57,7 @@ dependencies:
 
   # Others
   smooth_page_indicator: ^1.2.0+3
+  flutter_dotenv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -79,6 +80,7 @@ flutter:
     - assets/images/
     - assets/images/onboarding/
     - assets/icons/
+    - .env
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
