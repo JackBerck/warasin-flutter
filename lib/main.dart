@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:warasin/services/notification_service.dart';
 import 'core/config/app_config.dart';
 import 'services/local_database_service.dart';
 import 'features/onboarding/providers/onboarding_provider.dart';
@@ -25,7 +26,7 @@ void main() async {
   final sharedPreferences = await SharedPreferences.getInstance();
 
   // Initialize Notifications
-  // await NotificationService.instance.init();
+  await NotificationService.instance.init();
 
   runApp(
     ProviderScope(

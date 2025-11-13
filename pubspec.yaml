@@ -46,6 +46,7 @@ dependencies:
   # Notifikasi
   flutter_local_notifications: ^17.1.2
   timezone: ^0.9.3
+  permission_handler: ^12.0.1
 
   # UI & Navigation
   go_router: ^14.2.0
@@ -82,6 +83,7 @@ flutter:
     - assets/images/
     - assets/images/onboarding/
     - assets/icons/
+    - assets/audio/
     - .env
 
   # The following line ensures that the Material Icons font is
