@@ -53,7 +53,7 @@ dependencies:
   google_fonts: ^6.2.1
 
   # Utilities
-  intl: ^0.19.0
+  intl: ^0.20.2
   shared_preferences: ^2.2.3
 
   # Others
@@ -61,6 +61,9 @@ dependencies:
   flutter_dotenv: ^6.0.0
   uuid: ^4.5.2
   path: ^1.9.1
+
+  flutter_localizations: 
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

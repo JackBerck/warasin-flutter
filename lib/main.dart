@@ -8,6 +8,7 @@ import 'core/config/app_config.dart';
 import 'services/local_database_service.dart';
 import 'features/onboarding/providers/onboarding_provider.dart';
 import 'app.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +28,9 @@ void main() async {
 
   // Initialize Notifications
   await NotificationService.instance.init();
+
+  // Inisialisasi locale untuk DateFormat
+  await initializeDateFormatting('id_ID', null);
 
   runApp(
     ProviderScope(
