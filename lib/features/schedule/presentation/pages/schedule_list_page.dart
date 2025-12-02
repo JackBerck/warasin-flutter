@@ -87,6 +87,59 @@ class ScheduleListPage extends ConsumerWidget {
               }
             },
           ),
+          // Diagnostic button
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () async {
+              final canSchedule = await NotificationService.instance
+                  .isBatteryOptimizationDisabled();
+
+              if (context.mounted) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Diagnostic Notifikasi'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          canSchedule
+                              ? '✅ Exact Alarm: Diizinkan'
+                              : '❌ Exact Alarm: Tidak diizinkan',
+                          style: TextStyle(
+                            color: canSchedule ? Colors.green : Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        if (!canSchedule) ...[
+                          const Text(
+                            'Untuk notifikasi bekerja dengan baik:',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            '1. Buka Settings > Apps > Warasin\n'
+                            '2. Pilih "Alarms & reminders"\n'
+                            '3. Aktifkan "Allow setting alarms and reminders"\n'
+                            '4. Nonaktifkan Battery Optimization',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
         ],
       ),
       body: schedulesAsync.when(

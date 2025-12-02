@@ -87,6 +87,30 @@ class NotificationService {
     return true;
   }
 
+  // Check if battery optimization is disabled (important for scheduled notifications)
+  Future<bool> isBatteryOptimizationDisabled() async {
+    final androidImpl = _notifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+
+    if (androidImpl != null) {
+      // Check if app can schedule exact alarms
+      final canSchedule = await androidImpl.canScheduleExactNotifications();
+      print('📱 Can schedule exact notifications: $canSchedule');
+      return canSchedule ?? false;
+    }
+
+    return false;
+  }
+
+  // Request to disable battery optimization
+  Future<void> requestBatteryOptimizationExemption() async {
+    // Note: You might want to add a package like 'disable_battery_optimization'
+    // or use platform channels to open battery optimization settings
+    print('⚡ Please disable battery optimization for this app in Settings');
+  }
+
   // Create Android notification channel
   Future<void> _createNotificationChannel() async {
     final androidChannel = AndroidNotificationChannel(
@@ -142,7 +166,7 @@ class NotificationService {
       print('   - Day: $day (${_getDayName(day)})');
       print('   - Time: ${time.hour}:${time.minute}');
       print(
-        '   - Next occurrence: ${scheduledDate.year}-${scheduledDate.month}-${scheduledDate.day} ${scheduledDate.hour}:${scheduledDate.minute}',
+        '   - Next occurrence: ${scheduledDate.year}-${scheduledDate.month.toString().padLeft(2, '0')}-${scheduledDate.day.toString().padLeft(2, '0')} ${scheduledDate.hour.toString().padLeft(2, '0')}:${scheduledDate.minute.toString().padLeft(2, '0')}',
       );
 
       await _notifications.zonedSchedule(
@@ -184,6 +208,7 @@ class NotificationService {
     TimeOfDay time,
     tz.TZDateTime now,
   ) {
+    // Start from today
     tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
       now.year,
@@ -193,15 +218,20 @@ class NotificationService {
       time.minute,
     );
 
-    // Adjust to correct day of week (1=Monday, 7=Sunday)
-    while (scheduledDate.weekday != day) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    // Calculate days until target weekday
+    int daysUntilTarget = (day - scheduledDate.weekday) % 7;
+
+    // If it's 0, it means today is the target day
+    if (daysUntilTarget == 0) {
+      // Check if the time has already passed today
+      if (scheduledDate.isBefore(now) || scheduledDate.isAtSameMomentAs(now)) {
+        // Schedule for next week
+        daysUntilTarget = 7;
+      }
     }
 
-    // If the time has passed today, schedule for next week
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 7));
-    }
+    // Add the days to get to the target weekday
+    scheduledDate = scheduledDate.add(Duration(days: daysUntilTarget));
 
     return scheduledDate;
   }
